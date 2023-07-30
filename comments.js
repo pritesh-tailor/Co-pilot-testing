@@ -1,54 +1,61 @@
 // create web server
-var express = require('express');
-var app = express();
-var path = require('path');
-var bodyParser = require('body-parser');
-var port = 3000;
+// 1. load the express module
+const express = require('express');
+// 2. create an express application
+const app = express();
+// 3. load the mongoose module
+const mongoose = require('mongoose');
+// 4. load the body-parser module
+const bodyParser = require('body-parser');
+// 5. load the express-session module
+const session = require('express-session');
+// 6. load the express-handlebars module
+const handlebars = require('express-handlebars');
+// 7. load the express-fileupload module
+const fileUpload = require('express-fileupload');
+// 8. load the connect-flash module
+const flash = require('connect-flash');
+// 9. load the connect-mongodb-session module
+const MongoDBStore = require('connect-mongodb-session')(session);
+// 10. load the method-override module
+const methodOverride = require('method-override');
+// 11. load the passport module
+const passport = require('passport');
+// 12. load the passport-local module
+const LocalStrategy = require('passport-local').Strategy;
+// 13. load the passport-local-mongoose module
+const passportLocalMongoose = require('passport-local-mongoose');
+// 14. load the dotenv module
+const dotenv = require('dotenv');
+// 15. load the nodemailer module
+const nodemailer = require('nodemailer');
+// 16. load the moment module
+const moment = require('moment');
+// 17. load the slugify module
+const slugify = require('slugify');
+// 18. load the marked module
+const marked = require('marked');
+// 19. load the createDomPurify module
+const { JSDOM } = require('jsdom');
+// 20. load the dompurify module
+const dompurify = require('dompurify');
+// 21. load the User model
+const User = require('./models/User');
+// 22. load the Post model
+const Post = require('./models/Post');
+// 23. load the Comment model
+const Comment = require('./models/Comment');
+// 24. load the Category model
+const Category = require('./models/Category');
 
-// connect to mongodb
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/commentDB');
+// configure dotenv
+dotenv.config();
 
-var Schema = mongoose.Schema;
-var commentSchema = new Schema({
-  username: String,
-  comment: String,
-  timestamp: Date
+// configure mongoose
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false
 });
-var Comment = mongoose.model('Comment', commentSchema);
 
-// use body parser to parse json data
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-
-// serve static files
-app.use(express.static(path.join(__dirname, 'public')));
-
-// get comments
-app.get('/api/comments', function(req, res) {
-  Comment.find({}, function(err, comments) {
-    res.json(comments);
-  });
-});
-
-// add comment
-app.post('/api/comments', function(req, res) {
-  var newComment = new Comment(req.body);
-  newComment.save(function(err) {
-    if (err) throw err;
-    res.json(req.body);
-  });
-});
-
-// delete comment
-app.delete('/api/comments/:id', function(req, res) {
-  Comment.findByIdAndRemove(req.params.id, function(err, comment) {
-    if (err) throw err;
-    res.json(comment);
-  });
-});
-
-// start server
-app.listen(port, function() {
-  console.log('Server started on port ' + port);
-});
+// configure body-parser
